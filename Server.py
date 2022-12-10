@@ -1,7 +1,7 @@
 import threading
 from socket import *
 import argparse
-import os
+import sys
 
 class ServerGC(threading.Thread):
     
@@ -83,8 +83,8 @@ class ServerSocket(threading.Thread):
                 for connection in server.connections:
                     connection.sockConnect.close()
                     
-                print("Group Chat CLosed")
-                os.exit(0)
+                print("Group Chat Closed")
+                sys.exit(0)
 
 
 

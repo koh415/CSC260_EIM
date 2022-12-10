@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import tkinter as tk
+import Server
 
 class Send(threading.Thread):
     
@@ -133,6 +134,16 @@ def main(host, port):
     fromMessage = tk.Frame(master = window)
     scrollBar = tk.Scrollbar(master = fromMessage)
     messages = tk.Listbox(master = fromMessage, yscrollcommand=scrollBar.set)
+    onlineList = tk.Listbox(master = fromMessage)
+    onlineList.pack(side=tk.LEFT, fill = tk.Y)
+    names = []
+   #for name in client.name:
+    names.append(client.name)
+    print(names)
+    i = 0
+    while i < len(names):
+        onlineList.insert(i, names[i])
+        i += 1
     scrollBar.pack(side= tk.RIGHT, fill = tk.Y, expand = False)
     messages.pack(side= tk.LEFT, fill = tk.BOTH, expand = True)
     
@@ -146,8 +157,6 @@ def main(host, port):
     textInput.pack(fill = tk.BOTH, expand = True)
     textInput.bind("<Return>", lambda x: client.send(textInput))
     textInput.insert(0, "Message here.")
-    textInput.bind("<Button-1>", textInput.delete(0, tk.END))
-    
     btnSend = tk.Button(
         master = window, 
         text = 'Send', 
