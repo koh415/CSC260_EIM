@@ -98,8 +98,9 @@ class Client:
         
         send.start()
         recieve.start()
-        
-        self.sock.sendall('Server: {} has joined the chat.'.format(self.name).encode('ascii'))
+        new_user = 'Server: {} has joined the chat.'.format(self.name).encode('ascii')
+        encrypted_new_user = fernet.encrypt(new_user)
+        self.sock.sendall(encrypted_new_user)
         print("\r Messaging is now Ready, you may leave by typing the word 'quit' \n")
         print('{}: '.format(self.name), end = '')
         return recieve
@@ -113,7 +114,7 @@ class Client:
         
         
         if message.upper() == "QUIT":
-            self.sock.sendall('Server: {} has left the chat.'.format(self.name).encode('ascii'))
+            self.sock.sendall(fernet.encrypt('Server: {} has left the chat.'.format(self.name).encode('ascii')))
             
             print('\n Quitting')
             self.sock.close()
@@ -122,7 +123,7 @@ class Client:
             
         #send messages for broadcasting
         else:
-            self.sock.sendall('{}: {}'.format(self.name, message).encode('ascii'))
+            self.sock.sendall(fernet.encrypt('{}: {}'.format(self.name, message).encode('ascii')))
             
 def main(host, port):
     #run the gui here
