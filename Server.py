@@ -2,7 +2,6 @@ import threading
 from socket import *
 import argparse
 import sys
-
 class ServerGC(threading.Thread):
     
     def __init__(self, host, port):
