@@ -2,6 +2,11 @@ import threading
 from socket import *
 import argparse
 import sys
+from cryptography.fernet import Fernet
+
+with open("filekey.key", "rb") as file:
+    key = file.read()
+fernet = Fernet(key)
 class ServerGC(threading.Thread):
     
     def __init__(self, host, port):
@@ -59,7 +64,7 @@ class ServerSocket(threading.Thread):
             
         while True:
             message = self.sockConnect.recv(1024).decode('ascii')
-                
+            message = fernet.decrypt(message)
             if message:
                 print(f"{self.sockname} says {message}") 
                 self.server.broadcast(message, self.sockname)

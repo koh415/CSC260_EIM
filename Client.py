@@ -6,7 +6,9 @@ import sys
 import tkinter as tk
 from cryptography.fernet import Fernet
 
-key = Fernet.generate_key()
+
+with open("filekey.key", "rb") as file:
+    key = file.read()
 fernet = Fernet(key)
 class Send(threading.Thread):
     
@@ -26,10 +28,10 @@ class Send(threading.Thread):
             
             
             if(message.upper() == "QUIT"):
-                self.sock.sendall('Server: {} has left the chat.'.format(self.name).encode('ascii'))
+                self.sock.sendall(fernet.encrypt('Server: {} has left the chat.'.format(self.name).encode('ascii')))
                 break
             else:
-                self.sock.sendall('{}: {}'.format(self.name, message).encode('ascii'))
+                self.sock.sendall(fernet.encrypt('{}: {}'.format(self.name, message).encode('ascii')))
                 
         print('\n Quitting')
         self.sock.close()
@@ -49,8 +51,7 @@ class Recieve(threading.Thread):
     def run(self):
         
         while True:
-            message = self.sock.recv(1024).decode('ascii')
-            
+            message = fernet.decrypt(self.sock.recv(1024).decode('ascii'))
             if message:
                 
                 if self.messages:
