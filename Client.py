@@ -4,12 +4,7 @@ import argparse
 import os
 import sys
 import tkinter as tk
-from cryptography.fernet import Fernet
 
-
-with open("filekey.key", "rb") as file:
-    key = file.read()
-fernet = Fernet(key)
 class Send(threading.Thread):
     
     
@@ -28,10 +23,10 @@ class Send(threading.Thread):
             
             
             if(message.upper() == "QUIT"):
-                self.sock.sendall(fernet.encrypt('Server: {} has left the chat.'.format(self.name).encode('ascii')))
+                self.sock.sendall('Server: {} has left the chat.'.format(self.name).encode('ascii'))
                 break
             else:
-                self.sock.sendall(fernet.encrypt('{}: {}'.format(self.name, message).encode('ascii')))
+                self.sock.sendall('{}: {}'.format(self.name, message).encode('ascii'))
                 
         print('\n Quitting')
         self.sock.close()
@@ -51,7 +46,8 @@ class Recieve(threading.Thread):
     def run(self):
         
         while True:
-            message = fernet.decrypt(self.sock.recv(1024).decode('ascii'))
+            message = self.sock.recv(1024).decode('ascii')
+            
             if message:
                 
                 if self.messages:
@@ -99,9 +95,8 @@ class Client:
         
         send.start()
         recieve.start()
-        new_user = 'Server: {} has joined the chat.'.format(self.name).encode('ascii')
-        encrypted_new_user = fernet.encrypt(new_user)
-        self.sock.sendall(encrypted_new_user)
+        
+        self.sock.sendall('Server: {} has joined the chat.'.format(self.name).encode('ascii'))
         print("\r Messaging is now Ready, you may leave by typing the word 'quit' \n")
         print('{}: '.format(self.name), end = '')
         return recieve
@@ -115,7 +110,7 @@ class Client:
         
         
         if message.upper() == "QUIT":
-            self.sock.sendall(fernet.encrypt('Server: {} has left the chat.'.format(self.name).encode('ascii')))
+            self.sock.sendall('Server: {} has left the chat.'.format(self.name).encode('ascii'))
             
             print('\n Quitting')
             self.sock.close()
@@ -124,7 +119,7 @@ class Client:
             
         #send messages for broadcasting
         else:
-            self.sock.sendall(fernet.encrypt('{}: {}'.format(self.name, message).encode('ascii')))
+            self.sock.sendall('{}: {}'.format(self.name, message).encode('ascii'))
             
 def main(host, port):
     #run the gui here
@@ -138,16 +133,6 @@ def main(host, port):
     fromMessage = tk.Frame(master = window)
     scrollBar = tk.Scrollbar(master = fromMessage)
     messages = tk.Listbox(master = fromMessage, yscrollcommand=scrollBar.set)
-    onlineList = tk.Listbox(master = fromMessage)
-    onlineList.pack(side=tk.LEFT, fill = tk.Y)
-    names = []
-   #for name in client.name:
-    names.append(client.name)
-    print(names)
-    i = 0
-    while i < len(names):
-        onlineList.insert(i, names[i])
-        i += 1
     scrollBar.pack(side= tk.RIGHT, fill = tk.Y, expand = False)
     messages.pack(side= tk.LEFT, fill = tk.BOTH, expand = True)
     
@@ -161,6 +146,8 @@ def main(host, port):
     textInput.pack(fill = tk.BOTH, expand = True)
     textInput.bind("<Return>", lambda x: client.send(textInput))
     textInput.insert(0, "Message here.")
+    textInput.bind("<Button-1>", textInput.delete(0, tk.END))
+    
     btnSend = tk.Button(
         master = window, 
         text = 'Send', 
